@@ -1,7 +1,5 @@
 #!/bin/sh
 
-NFS_ADDRESS=192.168.10.1:/home/mperttunen/upstream/testenv
-
 mkdir /proc /sys
 mount /proc
 mount /sys
@@ -9,6 +7,21 @@ echo /sbin/mdev >/proc/sys/kernel/hotplug
 mdev -s
 
 mount -t debugfs debugfs /sys/kernel/debug
+
+for x in $(cat /proc/cmdline)
+do
+	case $x in
+		eimt.nfsaddr=*)
+		NFS_ADDRESS="${x//eimt.nfsaddr=}"
+		;;
+	esac
+done
+
+if [ -z "$NFS_ADDRESS" ]
+then
+	echo "Error: NFS address not set!"
+	exit 1
+fi
 
 udhcpc -n
 
